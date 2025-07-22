@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>แบบฟอร์มสมัครสินเชื่อ</title>
+  <!-- เชื่อม CSS -->
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+
+<h2>แบบฟอร์มสมัครสินเชื่อ</h2>
+
+<form id="loanForm">
+  <h3>ข้อมูลส่วนตัว</h3>
+  <label for="name">ชื่อ-นามสกุล:</label>
+  <input type="text" id="name" name="name" placeholder="กรุณากรอกชื่อ-นามสกุล" />
+
+  <label for="phone">เบอร์โทรศัพท์:</label>
+  <input type="text" id="phone" name="phone" placeholder="กรอกเบอร์โทรศัพท์" />
+
+  <label for="email">อีเมล:</label>
+  <input type="email" id="email" name="email" placeholder="กรอกอีเมล" />
+
+  <label for="amount">จำนวนเงินที่ต้องการ:</label>
+  <input type="number" id="amount" name="amount" placeholder="เช่น 10000" />
+
+  <label for="loanType">ประเภทสินเชื่อ:</label>
+  <select id="loanType" name="loanType">
+    <option value="">เลือกประเภทสินเชื่อ</option>
+    <option value="บ้าน">บ้าน</option>
+    <option value="รถ">รถ</option>
+    <option value="ส่วนบุคคล">ส่วนบุคคล</option>
+  </select>
+
+  <label for="details">รายละเอียดเพิ่มเติม:</label>
+  <textarea id="details" name="details" placeholder="สามารถใส่รายละเอียดเพิ่มเติมได้"></textarea>
+
+  <button type="submit">ส่งแบบฟอร์ม</button>
+</form>
+
+<!-- เชื่อม JS -->
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const form = document.querySelector('#loanForm');
+    
+    form.addEventListener('submit', function(e) {
+      e.preventDefault();
+      
+      const name = document.querySelector('#name').value.trim();
+      const phone = document.querySelector('#phone').value.trim();
+      
+      if (!name || !phone) {
+        alert('กรุณากรอกข้อมูลให้ครบถ้วน');
+        return;
+      }
+      
+      alert('ส่งข้อมูลสำเร็จ');
+      form.reset();
+    });
+  });
+</script>
+
+</body>
+</html>

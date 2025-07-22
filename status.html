@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8" />
+<link rel="icon" href="image.1.png">
+<title>Loan Calculator + ฟีเจอร์ครบ</title>
+<!-- Bootstrap -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" />
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<!-- SheetJS -->
+<script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
+<!-- jsPDF -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<!-- html2canvas -->
+<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    background-color: #f8f9fa;
+    padding: 20px;
+  }
+  h2, h4, h5 {
+    margin-bottom: 15px;
+  }
+  #results {
+    margin-top: 20px;
+  }
+  canvas {
+    max-width: 100%;
+  }
+  .card-header {
+    font-weight: bold;
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <h2 class="text-center mb-4">Loan Calculator - ฟีเจอร์ครบสมบูรณ์</h2>
+
+  <!-- แบบฟอร์ม -->
+  <div class="card mb-4 shadow-sm">
+    <div class="card-header bg-primary text-white">ข้อมูลเบื้องต้น</div>
+    <div class="card-body" id="form-body">
+      <!-- เลือกประเภทสินเชื่อ -->
+      <div class="mb-3">
+        <label for="loanType" class="form-label">ประเภทสินเชื่อ</label>
+        <select class="form-select" id="loanType" onchange="updateDescription()">
+          <option value="">เลือกประเภท</option>
+          <option value="smes">SME</option>
+          <option value="personal">สินเชื่อส่วนบุคคล</option>
+          <option value="od">สินเชื่อ OD</option>
+        </select>
+      </div>
+      <!-- ข้อมูลหลัก -->
+      <div class="mb-3">
+        <label for="principal" class="form-label">เงินต้น (บาท)</label>
+        <input type="number" class="form-control" id="principal" placeholder="เช่น 100000" />
+      </div>
+      <div class="mb-3">
+        <label for="interestRate" class="form-label">อัตราดอกเบี้ย (%) ต่อปี</label>
+        <input type="number" class="form-control" id="interestRate" step="0.01" />
+      </div>
+      <div class="mb-3">
+        <label for="years" class="form-label">ระยะเวลา (ปี)</label>
+        <input type="number" class="form-control" id="years" />
+      </div>
+      <!-- พื้นที่แสดงรายละเอียดตามประเภท -->
+      <div id="specialOptions"></div>
+      <!-- ปุ่มดำเนินการ -->
+      <div class="d-flex gap-2 mt-3 flex-wrap">
+        <button class="btn btn-primary" onclick="calculate()">คำนวณ</button>
+        <button class="btn btn-success" onclick="saveHistory()">บันทึกประวัติ</button>
+        <button class="btn btn-secondary" onclick="exportToExcel()">ส่งออก Excel</button>
+        <button class="btn btn-secondary" onclick="exportToPDF()">ส่งออก PDF</button>
+        <button class="btn btn-info" onclick="clearData()">ล้างข้อมูล</button>
+        <button class="btn btn-warning" onclick="showLoanGraph()">กราฟสินเชื่อ</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ผลลัพธ์ -->
+  <div id="results"></div>
+
+  <!-- กราฟผลคำนวณ -->
+  <div class="mt-4" id="loanGraphContainer" style="display:none;">
+    <h5>กราฟแสดงผลการคำนวณ</h5>
+    <canvas id="chart"></canvas>
+  </div>
+
+  <!-- กราฟเวลา -->
+  <div class="mt-4">
+    <h5>กราฟเวลาในการคำนวณแต่ละรอบ</h5>
+    <canvas id="timeChart"></canvas>
+  </div>
+
+  <!-- ประวัติ -->
+  <div id="historyContainer" class="mt-4">
+    <h4>ประวัติการคำนวณ</h4>
+    <ul class="list-group" id="historyList"></ul>
+  </div>
+</div>
+
+<script>
+  // ตัวแปรเก็บข้อมูลและกราฟ
+  let myChart = null;
+  let timeChart = null;
+  let loanGraphChart = null;
+  let calculationTimes = [];
+  let currentSchedule = [];
+
+  // อัปเดตรายละเอียดตามประเภท
+  function updateDescription() {
+    const type = document.getElementById('loanType').value;
+    let html = '';
+    if (type === 'smes') {
+      html = `
+        <p>สำหรับ SME: คำนวณดอกเบี้ยลดต้นลดดอก หรือสูตรพิเศษ</p>
+        <div class="form-check">
+          <input class="form-check-input" type="radio" name="smeInterest" id="smeReduc" value="reducing" checked>
+          <label class="form-check-label" for="smeReduc">ลดต้นลดดอก</label>
+        </div>
+        <div class="form-check">
+          <input class="form-check-input" type="radio" name="smeInterest" id="smeFlat" value="flat">
+          <label class="form-check-label" for="smeFlat">ดอกเบี้ยคงที่</label>
+        </div>`;
+    } else if (type === 'personal') {
+      html = `
+        <p>สำหรับสินเชื่อส่วนบุคคล: ค่าธรรมเนียมคงที่</p>
+        <div class="mb-3">
+          <label for="flatFee" class="form-label">ค่าธรรมเนียมคงที่ (บาท)</label>
+          <input type="number" class="form-control" id="flatFee" value="1000" />
+        </div>`;
+    } else if (type === 'od') {
+      html = `
+        <p>สำหรับ OD: ยอดขั้นต่ำ + ดอกเบี้ย</p>
+        <div class="mb-3">
+          <label for="minBalance" class="form-label">ยอดขั้นต่ำ (บาท)</label>
+          <input type="number" class="form-control" id="minBalance" value="50000" />
+        </div>
+        <div class="mb-3">
+          <label for="odInterest" class="form-label">อัตราดอกเบี้ย (%) ต่อปี</label>
+          <input type="number" class="form-control" id="odInterest" step="0.01" />
+        </div>`;
+    }
+    document.getElementById('specialOptions').innerHTML = html;
+  }
+
+  // ล้างข้อมูล
+  function clearData() {
+    document.getElementById('loanType').value = '';
+    document.getElementById('principal').value = '';
+    document.getElementById('interestRate').value = '';
+    document.getElementById('years').value = '';
+    document.getElementById('specialOptions').innerHTML = '';
+    document.getElementById('results').innerHTML = '';
+    document.getElementById('loanGraphContainer').style.display='none';
+    if (myChart) myChart.destroy();
+    if (timeChart) timeChart.destroy();
+    if (loanGraphChart) loanGraphChart.destroy();
+    calculationTimes = [];
+    currentSchedule = [];
+    document.getElementById('historyList').innerHTML = '';
+  }
+
+  // คำนวณ
+  function calculate() {
+    // ล้างกราฟเก่า
+    if (myChart) myChart.destroy();
+    if (timeChart) timeChart.destroy();
+    if (loanGraphChart) loanGraphChart.destroy();
+
+    const startTime = performance.now();
+
+    // รีเซ็ตผลลัพธ์
+    document.getElementById('results').innerHTML = '';
+    calculationTimes = [];
+
+    const type = document.getElementById('loanType').value;
+    const principal = parseFloat(document.getElementById('principal').value);
+    const rate = parseFloat(document.getElementById('interestRate').value) / 100;
+    const years = parseInt(document.getElementById('years').value);
+    if (isNaN(principal) || isNaN(rate) || isNaN(years)) {
+      alert('กรุณากรอกข้อมูลให้ครบถ้วน');
+      return;
+    }
+
+    let schedule = [], totalInterest=0;
+
+    if (type==='smes') {
+      const interestType = document.querySelector('input[name="smeInterest"]:checked').value;
+      if (interestType==='reducing') {
+        let amount=principal;
+        for(let y=1;y<=years;y++){
+          const interest = amount*rate;
+          amount+=interest;
+          schedule.push({year:y, principal:principal, interest:interest, total:amount});
+          totalInterest+=interest;
+        }
+      } else {
+        totalInterest=principal*rate*years;
+        schedule.push({year:0, principal:principal, interest:totalInterest, total:principal+totalInterest});
+      }
+    } else if (type==='personal') {
+      const fee = parseFloat(document.getElementById('flatFee').value);
+      const totalPrincipal=principal+fee;
+      const interest=totalPrincipal*rate*years;
+      schedule.push({year:0, principal:totalPrincipal, interest:interest, total:totalPrincipal+interest});
+      totalInterest=interest;
+    } else if (type==='od') {
+      const minBalance = parseFloat(document.getElementById('minBalance').value);
+      const odInterestRate = parseFloat(document.getElementById('odInterest').value)/100;
+      let amount=minBalance;
+      for(let y=1;y<=years;y++){
+        const interest=amount*odInterestRate;
+        amount+=interest;
+        schedule.push({year:y, principal:minBalance, interest:interest, total:amount});
+        totalInterest+=interest;
+      }
+    }
+
+    currentSchedule=schedule;
+
+    // แสดงผลในตาราง
+    let html=`<h4>ผลลัพธ์</h4>
+      <table class="table table-striped">
+        <thead>
+          <tr>
+            <th>ปีที่</th>
+            <th>ยอดเงินต้น (บาท)</th>
+            <th>ดอกเบี้ย (บาท)</th>
+            <th>ยอดรวม (บาท)</th>
+          </tr>
+        </thead><tbody>`;
+    schedule.forEach(s=>{
+      html+=`<tr>
+        <td>${s.year}</td>
+        <td>${s.principal.toFixed(2)}</td>
+        <td>${s.interest.toFixed(2)}</td>
+        <td>${s.total.toFixed(2)}</td>
+      </tr>`;
+    });
+    html+=`</tbody></table>
+      <p><strong>รวมดอกเบี้ยทั้งหมด:</strong> ${totalInterest.toFixed(2)} บาท</p>
+      <p><strong>ยอดชำระรวมทั้งสิ้น:</strong> ${schedule.length?schedule[schedule.length-1].total.toFixed(2): (principal+totalInterest).toFixed(2)}</p>`;
+    document.getElementById('results').innerHTML=html;
+
+    // สร้างกราฟผลคำนวณ
+    drawChart(schedule);
+
+    // วัดเวลา
+    const endTime=performance.now();
+    const elapsed=endTime-startTime;
+    calculationTimes.push(elapsed);
+    drawTimeChart();
+  }
+
+  // สร้างกราฟผลคำนวณ
+  function drawChart(schedule){
+    const ctx=document.getElementById('chart').getContext('2d');
+    myChart=new Chart(ctx,{
+      type:'line',
+      data:{
+        labels:schedule.map(s=>`ปี ${s.year}`),
+        datasets:[
+          {
+            label:'ดอกเบี้ยต่อปี',
+            data:schedule.map(s=>s.interest),
+            borderColor:'rgba(255,99,132,1)',
+            backgroundColor:'rgba(255,99,132,0.2)',
+            fill:false,
+            tension:0.3
+          },
+          {
+            label:'ยอดรวมทั้งสิ้น',
+            data:schedule.map(s=>s.total),
+            borderColor:'rgba(54,162,235,1)',
+            backgroundColor:'rgba(54,162,235,0.2)',
+            fill:false,
+            tension:0.3
+          }
+        ]
+      },
+      options:{
+        responsive:true,
+        plugins:{
+          tooltip:{
+            callbacks:{
+              label:function(context){
+                return context.dataset.label+': '+context.parsed.toFixed(2);
+              }
+            }
+          }
+        },
+        interaction:{mode:'index',intersect:false}
+      }
+    });
+  }
+
+  // สร้างกราฟเวลา
+  function drawTimeChart() {
+    const ctx=document.getElementById('timeChart').getContext('2d');
+    timeChart=new Chart(ctx,{
+      type:'bar',
+      data:{
+        labels:calculationTimes.map((_,i)=>`รอบ ${i+1}`),
+        datasets:[{
+          label:'เวลาในการคำนวณ (ms)',
+          data:calculationTimes,
+          backgroundColor:'rgba(75,192,192,0.6)',
+          borderColor:'rgba(75,192,192,1)',
+          borderWidth:1
+        }]
+      },
+      options:{
+        responsive:true,
+        scales:{ y:{ beginAtZero:true } }
+      }
+    });
+  }
+
+  // บันทึกประวัติ
+  function saveHistory() {
+    if(currentSchedule.length===0){ alert('กรุณาคำนวณก่อนบันทึก'); return; }
+    const history=JSON.parse(localStorage.getItem('calcHistory'))||[];
+    history.push({timestamp:new Date().toLocaleString(), resultHTML:document.getElementById('results').innerHTML, scheduleData:currentSchedule});
+    localStorage.setItem('calcHistory', JSON.stringify(history));
+    alert('บันทึกประวัติแล้ว');
+    displayHistory();
+  }
+
+  // แสดงประวัติ
+  function displayHistory() {
+    const history=JSON.parse(localStorage.getItem('calcHistory'))||[];
+    const list=document.getElementById('historyList');
+    list.innerHTML='';
+    if(history.length===0){ list.innerHTML='<li class="list-group-item">ไม่มีประวัติ</li>'; return; }
+    history.forEach((item,i)=>{
+      const li=document.createElement('li');
+      li.className='list-group-item';
+      li.innerHTML=`<strong>${item.timestamp}</strong>
+        <button class="btn btn-sm btn-primary float-end" onclick="loadHistory(${i})">ดู</button>`;
+      list.appendChild(li);
+    });
+  }
+
+  // โหลดประวัติ
+  function loadHistory(i) {
+    const history=JSON.parse(localStorage.getItem('calcHistory'))||[];
+    if(!history[i])return;
+    document.getElementById('results').innerHTML=history[i].resultHTML;
+    if(myChart) myChart.destroy();
+    drawChart(history[i].scheduleData);
+  }
+
+  // ส่งออก Excel
+  function exportToExcel() {
+    const table=document.querySelector('.table');
+    if(!table){ alert('ไม่มีข้อมูลสำหรับส่งออก'); return; }
+    const wb=XLSX.utils.book_new();
+    const ws=XLSX.utils.table_to_sheet(table);
+    // ปรับแต่ง Header
+    const range=XLSX.utils.decode_range(ws['!ref']);
+    for(let C=range.s.c; C<=range.e.c; C++){
+      const cellRef=XLSX.utils.encode_cell({c:C,r:0});
+      if(ws[cellRef]){
+        ws[cellRef].s={
+          fill:{fgColor:{rgb:"FFCCFF"}},
+          font:{bold:true, color:{rgb:"000000"}, sz:14, name:"Arial"},
+          alignment:{horizontal:"center"}
+        };
+      }
+    }
+    ws['!cols']=[{wch:10},{wch:15},{wch:15},{wch:15}];
+    XLSX.utils.book_append_sheet(wb,ws,"Results");
+    XLSX.writeFile(wb,"loan_results_formatted.xlsx");
+  }
+
+  // ส่งออก PDF พร้อมโลโก้และข้อมูลเพิ่มเติม
+  async function exportToPDF() {
+    const { jsPDF }=window.jspdf;
+    const doc=new jsPDF();
+
+    // ใส่โลโก้ (เปลี่ยนเป็น base64 ของคุณ)
+    const logoBase64='data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAA...'; // ใส่ภาพของคุณ
+    const logoWidth=30, logoHeight=15;
+
+    try {
+      // รัน html2canvas เพื่อแปลง #results เป็นภาพ
+      const canvas = await html2canvas(document.getElementById('results'));
+      const imgData = canvas.toDataURL('image/png');
+
+      // คำนวณขนาดภาพใน PDF
+      const imgProps = await doc.getImageProperties(imgData);
+      const pdfWidth=180;
+      const pdfHeight=(imgProps.height*pdfWidth)/imgProps.width;
+
+      // วาดโลโก้
+      doc.addImage(logoBase64,'PNG',10,10,logoWidth,logoHeight);
+
+      // ข้อความเพิ่มเติม
+      doc.setFontSize(12);
+      doc.text('ชื่อบริษัท: บริษัท ตัวอย่าง จำกัด',20,35);
+      doc.text('วันที่: '+new Date().toLocaleDateString(),20,42);
+
+      // หัวข้อ
+      doc.setFontSize(16);
+      doc.text('รายงานสรุปการคำนวณสินเชื่อ',50,20);
+
+      // วาดกรอบ
+      doc.setDrawColor(0);
+      doc.setLineWidth(0.5);
+      doc.rect(5, 50, 200, pdfHeight+10);
+
+      // ใส่เนื้อหา
+      doc.addImage(imgData,'PNG',10,55,pdfWidth,pdfHeight);
+
+      // บันทึกไฟล์
+      doc.save('loan_report.pdf');
+    } catch(e) {
+      alert('เกิดข้อผิดพลาดในการสร้าง PDF: ' + e.message);
+    }
+  }
+
+  // แสดงกราฟสินเชื่อ
+  function showLoanGraph() {
+    if(currentSchedule.length===0){ alert('กรุณาคำนวณก่อน'); return; }
+    document.getElementById('loanGraphContainer').style.display='block';
+    if(loanGraphChart) loanGraphChart.destroy();
+
+    const ctx=document.getElementById('chart').getContext('2d');
+    loanGraphChart=new Chart(ctx,{
+      type:'bar',
+      data:{
+        labels:currentSchedule.map(s=>`ปี ${s.year}`),
+        datasets:[
+          {
+            label:'ดอกเบี้ย',
+            data:currentSchedule.map(s=>s.interest),
+            backgroundColor:'rgba(255,159,64,0.7)'
+          },
+          {
+            label:'เงินต้น',
+            data:currentSchedule.map(s=>s.principal),
+            backgroundColor:'rgba(75,192,192,0.7)'
+          }
+        ]
+      },
+      options:{
+        responsive:true,
+        plugins:{ tooltip:{ callbacks:{ label:function(c){ return c.dataset.label+': '+c.parsed.toFixed(2); } } } },
+        scales:{ y:{ beginAtZero:true } }
+      }
+    });
+  }
+
+  // โหลดหน้า
+  window.onload=()=>{
+    displayHistory();
+    updateDescription();
+  };
+</script>
+</body>
+</html>

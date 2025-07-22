@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<link rel="icon" href="image.1.png">
+<title>ติดต่อเรา - WHC</title>
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    background-color: #f4f6f8;
+    margin: 0;
+    padding: 0;
+  }
+
+  /* แถบเมนู */
+  .navbar {
+    display: flex;
+    background-color: #009CFF;
+    padding: 15px 20px;
+    align-items: center;
+  }
+
+  .navbar a {
+    color: white;
+    text-decoration: none;
+    margin: 0 15px;
+    font-size: 18px;
+    transition: background-color 0.3s;
+    padding: 8px 12px;
+    border-radius: 4px;
+  }
+
+  .navbar a:hover {
+    background-color: rgba(255,255,255,0.2);
+  }
+
+  /* เนื้อหา */
+  .content {
+    max-width: 1000px;
+    margin: 30px auto;
+    padding: 20px;
+    background-color: #fff;
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  }
+
+  h1 {
+    color: #009CFF;
+    text-align: center;
+    margin-bottom: 20px;
+  }
+
+  /* รายละเอียดที่อยู่ */
+  .address {
+    margin-bottom: 30px;
+  }
+
+  .address h2 {
+    color: #009CFF;
+    margin-bottom: 10px;
+  }
+
+  .address p {
+    font-size: 18px;
+    line-height: 1.6;
+    margin: 8px 0;
+  }
+
+  /* แผนที่ */
+  .map {
+    width: 100%;
+    height: 400px;
+    margin-top: 20px;
+  }
+
+  /* สำหรับมือถือปรับความสูงของแผนที่ */
+  @media(max-width:768px) {
+    .map {
+      height: 250px;
+    }
+  }
+</style>
+</head>
+<body>
+
+<!-- แถบเมนู -->
+<div class="navbar">
+  <a href="index.html">หน้าหลัก</a>
+  <a href="about.html">เกี่ยวกับสินเชื่อ</a>
+  <a href="contact.html" style="font-weight:bold;">ติดต่อเรา</a>
+  <a href="status.html">เช็ครายอัตราดอกเบี้ย</a>
+</div>
+
+<!-- เนื้อหาการติดต่อ -->
+<div class="content">
+  <h1>ติดต่อเรา</h1>
+  
+  <div class="address">
+    <h2>ที่อยู่บริษัท</h2>
+    <p>บริษัท ดับบลิวเอชซี จำกัด</p>
+    <p>40 หมู่ที่ 7 ซอยสินสาคร ถนนพระราม 2 ต.พันท้ายนรสิงห์ อ.เมืองสมุทรสาคร จ.สมุทรสาคร 74000</p>
+    <p>เบอร์โทรศัพท์: 02-114-4567</p>
+    <p>อีเมล:whccompanylimited@whc.co.th</p>
+  </div>
+
+<h2>แผนที่ตั้งบริษัท</h2>
+<div class="map" style="width: 100%; height: 500px;">
+  <iframe
+    src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3878.2553648425073!2d100.3401594753195!3d13.581204201219894!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x30e2b97afa119985%3A0x677d88684f9971de!2sWANN%20COSMETICS%20AND%20LABORATORY%20Co.%2C%20LTD!5e0!3m2!1sen!2skh!4v1753170686523!5m2!1sen!2skh"
+    width="100%"
+    height="100%"
+    style="border:0;"
+    allowfullscreen=""
+    loading="lazy"
+    referrerpolicy="no-referrer-when-downgrade"
+  ></iframe>
+</div>
+
+</body>
+</html>

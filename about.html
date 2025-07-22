@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<link rel="icon" href="image.1.png">
+<title>เกี่ยวกับสินเชื่อ - WHC</title>
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    background-color: #f4f6f8;
+    margin: 0;
+    padding: 0;
+  }
+
+  /* สไตล์สำหรับแถบเมนู (Navigation Bar) */
+  .navbar {
+    display: flex;
+    background-color: #009CFF;
+    padding: 15px 20px;
+    align-items: center;
+  }
+
+  .navbar a {
+    color: white;
+    text-decoration: none;
+    margin: 0 15px;
+    font-size: 18px;
+    transition: background-color 0.3s;
+    padding: 8px 12px;
+    border-radius: 4px;
+  }
+
+  .navbar a:hover {
+    background-color: rgba(255,255,255,0.2);
+  }
+
+  /* เนื้อหาหลัก */
+  .content {
+    max-width: 1000px;
+    margin: 30px auto;
+    padding: 20px;
+    background-color: #fff;
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  }
+
+  h1 {
+    color: #009CFF;
+    text-align: center;
+    margin-bottom: 20px;
+  }
+
+  /* รูปภาพ */
+  .about-image {
+    width: 100%;
+    max-width: 600px;
+    display: block;
+    margin: 20px auto;
+    border-radius: 10px;
+  }
+
+  /* ข้อความ */
+  p {
+    font-size: 18px;
+    line-height: 1.6;
+    color: #333;
+    margin-bottom: 20px;
+  }
+
+  /* ป๊อปอัปแจ้งเตือน */
+  #popupOverlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.5);
+    z-index: 9999;
+  }
+
+  #popupContent {
+    position: relative;
+    max-width: 700px;
+    margin: auto;
+    margin-top: 100px;
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+  }
+
+  #popupClose {
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    background: none;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+  }
+
+  #popupImage {
+    width: 100%;
+    border-radius: 10px;
+  }
+
+  /* ปุ่ม */
+  .btn {
+    display: inline-block;
+    padding: 12px 24px;
+    background-color: #009CFF;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    font-size: 16px;
+    cursor: pointer;
+    margin-top: 20px;
+    transition: background-color 0.3s;
+  }
+
+  .btn:hover {
+    background-color: #007bbf;
+  }
+  @media (max-width: 768px) {
+  /* ปรับแถบเมนูให้เป็นแนวตั้งหรือมีการเลื่อนซ้ายขวาได้ง่ายขึ้น */
+  .navbar {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .navbar a {
+    margin: 10px 0;
+    width: 100%;
+    font-size: 16px;
+  }
+
+  /* ข้อความในเนื้อหาให้มีความกว้างเต็มที่และลดขนาดตัวอักษรถ้าจำเป็น */
+  .content {
+    margin: 20px;
+    padding: 15px;
+  }
+
+  h1 {
+    font-size: 24px;
+  }
+
+  /* รูปภาพให้เต็มความกว้างและไม่เกิน max-width เดิม */
+  .about-image {
+    width: 100%;
+    max-width: 100%;
+    height: auto;
+  }
+
+  /* ข้อความ */
+  p {
+    font-size: 16px;
+  }
+
+  /* ปุ่มให้เต็มความกว้างและขนาดเหมาะสม */
+  .btn {
+    width: 100%;
+    padding: 12px;
+    font-size: 16px;
+  }
+
+  /* ป๊อปอัปให้มีความกว้างเต็มและอยู่ในขอบเขตของหน้าจอ */
+  #popupContent {
+    max-width: 90%;
+    margin-top: 50px;
+  }
+}
+</style>
+</head>
+<body>
+
+<!-- แถบเมนู -->
+<div class="navbar">
+  <a href="index.html">หน้าหลัก</a>
+  <a href="about.html" style="font-weight:bold;">เกี่ยวกับสินเชื่อ</a>
+  <a href="contact.html">ติดต่อ</a>
+  <a href="status.html">สถานะเช็ครายอัตราดอกเบี้ย</a>
+</div>
+
+<!-- เนื้อหาเกี่ยวกับสินเชื่อ -->
+<div class="content">
+  <h1>เกี่ยวกับสินเชื่อของเรา</h1>
+  <img src="image.010.png" alt="เกี่ยวกับสินเชื่อ" class="about-image" />
+
+  <p>
+    บริษัท ดับบลิวเอชซี จำกัด เป็นผู้นำด้านการให้บริการสินเชื่อที่มีความน่าเชื่อถือและเป็นมืออาชีพ เรามุ่งมั่นในการให้คำปรึกษาและบริการที่ดีที่สุดแก่ลูกค้าของเรา ด้วยทีมงานที่มีประสบการณ์และความเข้าใจในด้านการเงินอย่างลึกซึ้ง
+  </p>
+  <p>
+    สินเชื่อของเรามีความหลากหลายเพื่อตอบสนองความต้องการของลูกค้าในทุกกลุ่ม เช่น สินเชื่อส่วนบุคคล สินเชื่อเพื่อธุรกิจ และสินเชื่อบ้าน พร้อมอัตราดอกเบี้ยที่เป็นธรรมและโปร่งใส
+  </p>
+  <p>
+    เรามุ่งมั่นที่จะช่วยให้คุณมีความมั่นคงทางการเงินและสร้างอนาคตที่สดใสไปด้วยกัน
+  </p>
+
+  <h2>ทำไมต้องเลือกเรา</h2>
+  <ul>
+    <li>อัตราดอกเบี้ยแข่งขันได้</li>
+    <li>บริการรวดเร็วและเป็นมิตร</li>
+    <li>คำปรึกษาและให้คำแนะนำอย่างมืออาชีพ</li>
+    <li>การอนุมัติที่รวดเร็วและง่ายดาย</li>
+  </ul>
+
+  <button class="btn" onclick="showPopup()">ดูโปรโมชั่นพิเศษ</button>
+</div>
+
+<!-- ป๊อปอัปแจ้งเตือน -->
+<div id="popupOverlay">
+  <div id="popupContent">
+    <button id="popupClose" onclick="closePopup()">&times;</button>
+    <h2>โปรโมชั่นสุดพิเศษ!</h2>
+    <img src="image.011.png" id="popupImage" alt="โปรโมชั่น" />
+    <p style="margin-top:15px;">รับส่วนลดดอกเบี้ยสูงสุด 20% สำหรับลูกค้าใหม่ สมัครวันนี้รับข้อเสนอสุดพิเศษ!</p>
+  </div>
+</div>
+
+<script>
+  function showPopup() {
+    document.getElementById('popupOverlay').style.display = 'block';
+  }
+
+  function closePopup() {
+    document.getElementById('popupOverlay').style.display = 'none';
+  }
+
+  // เมื่อโหลดหน้าให้แสดงป๊อปอัปอัตโนมัติ
+  window.onload = function() {
+    showPopup();
+  };
+</script>
+
+</body>
+</html>

@@ -1,0 +1,59 @@
+  /* สไตล์สำหรับแถบเมนู (Navigation Bar) */
+  .navbar {
+    display: flex;
+    background-color: #009CFF;
+    padding: 15px 20px;
+    align-items: center;
+  }
+
+  .navbar a {
+    color: white;
+    text-decoration: none;
+    margin: 0 15px;
+    font-size: 18px;
+    transition: background-color 0.3s;
+    padding: 8px 12px;
+    border-radius: 4px;
+  }
+
+  .navbar a:hover {
+    background-color: rgba(255,255,255,0.2);
+  }
+
+  /* สไตล์สำหรับป๊อปอัป */
+  #popupOverlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.5);
+    z-index: 9999;
+  }
+
+  #popupContent {
+    position: relative;
+    max-width: 600px;
+    margin: auto;
+    margin-top: 100px;
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 0 15px rgba(0,0,0,0.3);
+  }
+
+  #popupClose {
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    background: none;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+  }
+
+  #popupImage {
+    width: 100%;
+    border-radius: 10px;
+  }
