@@ -1,7 +1,7 @@
   /* สไตล์สำหรับแถบเมนู (Navigation Bar) */
   .navbar {
     display: flex;
-    background-color: #009CFF;
+    background-color: #383c3f;
     padding: 15px 20px;
     align-items: center;
   }
